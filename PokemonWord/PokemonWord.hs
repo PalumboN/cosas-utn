@@ -6,6 +6,8 @@ mayorSegun f [x] = x
 mayorSegun f (x1:x2:xs)
 	|f x1 > f x2 = mayorSegun f (x1:xs)
 	|otherwise = mayorSegun f (x2:xs)
+	
+(<<) f1 f2 = \a -> (f1 a.f2) a
 
 --------------------------------------------------------------------------------------------------------
 ---------------------------------------- Tipos Pokemon
@@ -48,7 +50,7 @@ data Ataque =
 	} |
 	AtaqueEspecial{
 	tipoE :: PokeTipo,
-	efecto :: Pokemon -> Pokemon
+	efecto :: Batalla Pokemon -> Batalla Pokemon
 	}
 	
 puntosDeDaño (AtaqueCurativo _ _) = 0
@@ -57,9 +59,9 @@ puntosDeDaño ataque = daño ataque
 puntosDeVida (AtaqueDañino _ _) = 0
 puntosDeVida ataque = curacion ataque
 
-aplicar _ atacado (AtaqueDañino _ daño) = reducirVida daño atacado
-aplicar atacante _ (AtaqueCurativo _ curacion) = aumentarVida curacion atacante
-aplicar atacante atacado (AtaqueEspecial _ efecto) = efecto atacado
+aplicarAtaque (Pelea pokemonAtacante pokemonAtacado) (AtaqueDañino _ daño) = Pelea pokemonAtacante (reducirVida daño pokemonAtacado)
+aplicarAtaque (Pelea pokemonAtacante pokemonAtacado) (AtaqueCurativo _ curacion) = Pelea (aumentarVida curacion pokemonAtacante) pokemonAtacado
+aplicarAtaque batalla (AtaqueEspecial _ efecto) = efecto batalla
 
 debilitaA pokemonAtacado ataque = puntosDeDaño ataque >= vida pokemonAtacado
 
@@ -126,6 +128,9 @@ estasMedioMuerto pokemon = vida pokemon < (vidaMax pokemon `div` 2)
 
 ataqueAUsar ataques = head ataques
 
+getAtaquesContra (Pelea pokemonAtacante pokemonAtacado) = map (`contra` pokemonAtacado) (ataques pokemonAtacante) 
+
+getEstrategia batalla = ((estrategia.atacante)<<(\batalla -> batalla)) batalla
 
 ----------------------------------------------------------------------------------------------------------
 ---------------------------------------- Estrategia
@@ -135,43 +140,90 @@ ataqueAUsar ataques = head ataques
 -- segura: si está medio muerto y posee algún ataque curativo usa el que más cura. Sino aquel que más daño hará.
 -- experta: si hay un ataque que Debilite al contrincante escoge ese, sino lleva una estrategia segura.
 
-type Estrategia = Pokemon -> Pokemon -> [Ataque] -> Ataque
+type Estrategia = Batalla Pokemon -> [Ataque] -> Ataque
 
-siemprePrimero _ _ ataques = head ataques
-siempreElMasDoloroso _ _ ataques = mayorSegun puntosDeDaño ataques
-segura pokemonAtacante pokemonAtacado ataques 
-	|estasMedioMuerto pokemonAtacante && any ((>0).puntosDeVida) ataques = mayorSegun puntosDeVida ataques
-	|otherwise = siempreElMasDoloroso pokemonAtacante pokemonAtacado ataques
-experta pokemonAtacante pokemonAtacado ataques 
-	|any (debilitaA pokemonAtacado) ataques = (head.filter (debilitaA pokemonAtacado)) ataques
-	|otherwise = segura pokemonAtacante pokemonAtacado ataques 
+estrategiaSiemprePrimero _ ataques = head ataques
+estrategiaSiempreElMasDoloroso _ ataques = mayorSegun puntosDeDaño ataques
+estrategiaSegura batalla ataques 
+	|(estasMedioMuerto.atacante) batalla && any ((>0).puntosDeVida) ataques = mayorSegun puntosDeVida ataques
+	|otherwise = estrategiaSiempreElMasDoloroso batalla ataques
+estrategiEexperta batalla ataques 
+	|any ((debilitaA.atacado) batalla) ataques = (head.filter ((debilitaA.atacado) batalla)) ataques
+	|otherwise = estrategiaSegura batalla ataques 
 
-estrategiaLucha pokemonAtacante _ = (head.ataques) pokemonAtacante
+estrategiaLucha = head.ataques.atacante
 
 ----------------------------------------------------------------------------------------------------------
 ---------------------------------------- Batalla
-data Resultado a = Pelea a a | Ganador a 
+data Batalla a = Pelea a a | Ganador a
 
-ganador (Pelea pokemonAtacante pokemonAtacado) = ganador (getResultado pokemonAtacante pokemonAtacado (atacar pokemonAtacante pokemonAtacado))
-ganador (Ganador pokemon) = pokemon
+instance Show a => Show (Batalla a) where
+	show (Pelea pokemonAtacante pokemonAtacado) = show pokemonAtacante ++ " >>>>VS<<<< " ++ show pokemonAtacado
+	show (Ganador pokemon) = show pokemon
+	
+getGanador (Ganador pokemon) = pokemon
+getGanador (Pelea pokemonAtacante pokemonAtacado) = (getGanador.getResultado.turnoSiguiente.atacar pokemonAtacante) pokemonAtacado
 
-getResultado pokemonAtacante pokemonAtacado pokemonAfectado
-	|pokemonAtacante == pokemonAfectado = turnoSiguiente pokemonAfectado pokemonAtacado 
-	|pokemonAtacado == pokemonAfectado = turnoSiguiente pokemonAtacante pokemonAfectado
+getResultado (Pelea (Debilitado _) pokemon) = Ganador pokemon
+getResultado (Pelea pokemon (Debilitado _)) = Ganador pokemon
+getResultado batalla = batalla
 
-turnoSiguiente (Debilitado _) pokemon = Ganador pokemon
-turnoSiguiente pokemon (Debilitado _) = Ganador pokemon
-turnoSiguiente pokemonAtacante pokemonAtacado = Pelea pokemonAtacado pokemonAtacante
+turnoSiguiente (Pelea pokemonAtacante pokemonAtacado) = Pelea pokemonAtacado pokemonAtacante
+turnoSiguiente (Ganador pokemon) = errorGanador pokemon
+
+atacante (Pelea pokemonAtacante _) = pokemonAtacante
+atacante (Ganador pokemon) = errorGanador pokemon
+atacado (Pelea _ pokemonAtacado) = pokemonAtacado
+atacado (Ganador pokemon) = errorGanador pokemon
+
+errorGanador pokemon = error ("Ganador no encontrado: " ++ show pokemon)
 
 ----------------------------------------------------------------------------------------------------------
 ---------------------------------------- Casos de uso
+-- Hacer los ataques especiales.
+
 -- Crear la funcion "elegirAtaqueContra" que devuelva el ataque elegido por un pokemon contra otro, teniendo en cuenta su estrategia.
-elegirAtaqueContra pokemonAtacante pokemonAtacado = (estrategia pokemonAtacante) pokemonAtacante pokemonAtacado $ map (`contra` pokemonAtacado) (ataques pokemonAtacante)
+elegirAtaqueContra pokemonAtacante pokemonAtacado = (getEstrategia<<getAtaquesContra) (Pelea pokemonAtacante pokemonAtacado)
 	
-	
--- Hacer que un pokemon ataque a otro con un ataque, esto devuelve el pokemon que fue afectado luego de sufrir el ataque elegido por el pokemon.
-atacar pokemonAtacante pokemonAtacado = aplicar pokemonAtacante pokemonAtacado $ elegirAtaqueContra pokemonAtacante pokemonAtacado 
+-- Hacer que un pokemon ataque a otro con un ataque, esto devuelve el resultado del ataque.
+atacar pokemonAtacante pokemonAtacado = aplicarAtaque (Pelea pokemonAtacante pokemonAtacado) $ elegirAtaqueContra pokemonAtacante pokemonAtacado 
 
 -- Saber el ganador al pelear entre dos pokemones, esto significa que se atacan, por turnos, hasta que uno queda debilitado. Un pokemon queda debilitado cuando su vida se reduce a 0.
-ganadorAlPelear unPokemon otroPokemon = ganador (Pelea unPokemon otroPokemon)
+ganadorAlPelear unPokemon otroPokemon = getGanador (Pelea unPokemon otroPokemon)
+
+-- Hacer que los pokemones tengan estado (paralizado, envenenado)
+
+-------------------------------------------------------------------------------------------
+---------------------------------------- Pokemon
+newPokemon nombre vida tipo ataques = Pokemon nombre vida vida tipo ataques estrategiaSiemprePrimero
+
+pikachu = newPokemon "Pikachu" 70 electrico [impactrueno,colaDeAcero,arañazo]
+charmander = newPokemon "Charmander" 80 fuego [lanzallamas,arañazo]
+psyduck = newPokemon "Psyduck" 50 agua [chorroDeAgua,restaurar]
+
+-------------------------------------------------------------------------------------------
+---------------------------------------- Ataques
+newDañino tipo daño = AtaqueDañino tipo daño
+newCurativo tipo vida = AtaqueCurativo tipo vida
+
+lanzallamas = newDañino fuego 40
+arañazo = newDañino normal 20
+impactrueno = newDañino electrico 50
+colaDeAcero = newDañino acero 70
+chorroDeAgua = newDañino agua 40
+restaurar = newCurativo psiquico 30
+
+-------------------------------------------------------------------------------------------
+---------------------------------------- Tipos
+newTipo nombre ventajaContra = Tipo nombre ventajaContra
+
+fuego = newTipo "Fuego" [planta,acero]
+agua = newTipo "Agua" [fuego,piedra]
+planta = newTipo "Planta" [piedra,agua]
+acero = newTipo "Acero" [piedra]
+piedra = newTipo "Piedra" [fuego, electrico]
+electrico = newTipo "Electrico" [agua]
+psiquico = newTipo "Psiquico" [psiquico]
+normal = newTipo "Normal" []
+
 
