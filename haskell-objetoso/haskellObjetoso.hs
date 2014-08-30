@@ -4,16 +4,19 @@ module HaskellObjetoso where
 import Prelude hiding ((.))
 
 
-(&) f1 f2 = (\x -> f1 $ f2 x)
+(·) f1 f2 = (\x -> f1 $ f2 x)
 (<<) f1 f2 = (\x -> f1 (f2 x) x)
 
 data Object object = New { dataObject :: object } deriving (Eq)
 
-instance Show a => Show (Object a) where
-	show (New dataObject) = show dataObject
+class ObjectClass dataObject where
+	getMethods :: [(Object dataObject) -> (Object a)]
 
-(.) :: (Object a) -> (ObjectFunction a b) -> (Object b)
-(.) object f = New $ apply f object
+instance Show a => Show (Object a) where
+	show (New dataObject) = "#Object \n  " ++ show dataObject
+
+-- (.) :: (Object a) -> (ObjectFunction a b) -> (Object b)
+(.) (New dataObject) f = f dataObject
 
 data ObjectFunction a b = OF ((Object a) -> b) | SF (a -> b)
 
