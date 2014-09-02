@@ -1,31 +1,45 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE IncoherentInstances #-}
+
 module HaskellObjetoso where
 import Prelude hiding ((.))
 
-
 (·) f1 f2 = (\x -> f1 $ f2 x)
 (<<) f1 f2 = (\x -> f1 (f2 x) x)
+nullPionterError = error "Null pointer exception"
 
-data Object object = New { dataObject :: object } deriving (Eq)
 
-class ObjectClass dataObject where
-	getMethods :: [(Object dataObject) -> (Object a)]
-
+data Object object = 
+	Instance{ 
+	dataObject :: object 
+	} |
+	Null deriving (Eq)
+	
 instance Show a => Show (Object a) where
-	show (New dataObject) = "#Object \n  " ++ show dataObject
+	show (Instance dataObject) = "#Object \n  " ++ show dataObject
+	show Null = "#Null"
 
--- (.) :: (Object a) -> (ObjectFunction a b) -> (Object b)
-(.) (New dataObject) f = f dataObject
+instance Functor Object where
+	fmap f (Instance dataObject) = Instance $ f dataObject
+	fmap _ Null = nullPionterError
 
-data ObjectFunction a b = OF ((Object a) -> b) | SF (a -> b)
+-- (.) :: Object a -> (Object a -> b) -> (Object b)
+-- (.) object f = Instance $ f object
+(!) :: Object a -> (a -> b) -> (Object b)
+(!) = flip fmap
+	
+	
+isNull Null = True
+isNull _ = False
 
-instance Show (ObjectFunction a b) where
-	show (OF f) = "OF -"
-	show (SF f) = "SF -"
+type ObjectFunction a b = (Object a) -> b
+	
+class FunctionClass f where
+	(.) :: (Object a) -> (f a b) -> (Object b)
+	
+instance FunctionClass (->) where
+	(.) = flip fmap
 
-apply :: (ObjectFunction a b) -> (Object a) -> b
-apply (OF f) object = f object
-apply (SF f) (New a) = f a
-
-transform f = SF f
+instance FunctionClass ObjectFunction where
+	(.) object f = Null
