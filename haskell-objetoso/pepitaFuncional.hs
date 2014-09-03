@@ -9,24 +9,19 @@ data Golondrina =
 	energia :: Float,
 	ciudad :: Ciudad} deriving (Show, Eq)
 -- Interfaz
--- Getters/Setters
-getEnergia = energia·dataObject
-setEnergia cant = settearEnergia cant·dataObject
-getCiudad = ciudad·dataObject
-setCiudad (Instance ciudad) = settearCiudad ciudad·dataObject
--- Métodos
-come grms golondrina = golondrina.aumentarEnergia (10 * grms)
-aumentarEnergia cant golondrina = golondrina.setEnergia (dataObject (golondrina.getEnergia!(+ cant)))
--- volaHacia ciudadNueva = setCiudad ciudadNueva·disminuirEnergiaHasta ciudadNueva
--- disminuirEnergiaHasta ciudadNueva = (disminuirEnergia·(*10)) << (\g -> ciudadNueva.(distanciaHasta·getCiudad) g)
+-- Setters
+setEnergia cant golondrina = golondrina { energia = cant }
+setCiudad (Instance ciudad) golondrina = golondrina { ciudad = ciudad }
+-- 
+come grms = Method (\g -> g.aumentarEnergia (10*grms))
+volaHacia ciudadNueva = Method (\g -> g.disminuirEnergiaHasta ciudadNueva.setCiudad ciudadNueva)
+disminuirEnergiaHasta ciudadNueva = Method (\g -> g.disminuirEnergia (10*g.ciudad.distanciaHasta ciudadNueva))
 
 
-
-settearEnergia cant (Golondrina _ ciudad) = Golondrina cant ciudad
-settearCiudad ciudad (Golondrina energia _) = Golondrina energia ciudad
-disminuirEnergia cant golondrina@(Golondrina energia ciudad)
-	|cant > energia = error $ show golondrina ++ " no posee energía suficiente."
-	|otherwise = Golondrina (energia - cant) ciudad
+aumentarEnergia cant = setEnergia << ((+cant)·energia)
+disminuirEnergia (Instance cant) golondrina
+	|cant > (energia golondrina) = error $ show golondrina ++ " no posee energía suficiente = " ++ show cant
+	|otherwise = golondrina { energia = ((energia golondrina) - cant) }
 
 ------------------------------- Ciudad ---------------------------------------
 -- Atributos
@@ -36,13 +31,11 @@ data Ciudad =
 	km :: Float} deriving (Show, Eq)
 
 -- Interfaz
-getNombre = Instance·nombre
-getKm = Instance·km
-distanciaHasta (Instance ciudad) = abs·(-) (km ciudad)·km
+distanciaHasta otraCiudad = Method (\c -> abs·(-) (c.km) $ otraCiudad.km)
 
 ------------------------------------------------------------------------------
 
-dataPepita = Golondrina 10000 dataBsAs
+dataPepita = Golondrina 9999 dataBsAs
 pepita = Instance dataPepita
 
 dataBsAs = Ciudad "BsAs" 0

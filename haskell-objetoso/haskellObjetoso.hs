@@ -1,6 +1,4 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE IncoherentInstances #-}
 
 module HaskellObjetoso where
 import Prelude hiding ((.))
@@ -8,38 +6,48 @@ import Prelude hiding ((.))
 (·) f1 f2 = (\x -> f1 $ f2 x)
 (<<) f1 f2 = (\x -> f1 (f2 x) x)
 nullPionterError = error "Null pointer exception"
+crashError = error "Crash type exception"
 
-
-data Object object = 
-	Instance{ 
-	dataObject :: object 
-	} |
-	Null deriving (Eq)
+data Object dataO = Instance dataO | Null deriving (Eq, Ord, Read)
 	
+	
+data Method a b = Method { method :: (Object a) -> (Object b) }
+
+instance Show (Method a b) where
+	show _ = "#Metodo"
+	
+class MethodClass f where
+	(.) :: (Object a) -> (f a b) -> (Object b)
+instance MethodClass (->) where
+	(.) = flip fmap
+instance MethodClass Method where
+	(.) object (Method f) = f object
+		
+isNull Null = True
+isNull _ = False
+
+
+
 instance Show a => Show (Object a) where
 	show (Instance dataObject) = "#Object \n  " ++ show dataObject
 	show Null = "#Null"
 
 instance Functor Object where
-	fmap f (Instance dataObject) = Instance $ f dataObject
+	fmap f (Instance a) = Instance $ f a
 	fmap _ Null = nullPionterError
 
--- (.) :: Object a -> (Object a -> b) -> (Object b)
--- (.) object f = Instance $ f object
-(!) :: Object a -> (a -> b) -> (Object b)
-(!) = flip fmap
-	
-	
-isNull Null = True
-isNull _ = False
+instance Monad Object where
+	(>>=) (Instance a) f = f a
+	return = Instance
+	(>>) (Instance a) (Instance b) = crashError
+	(>>) object Null = nullPionterError
+	(>>) Null object = object
 
-type ObjectFunction a b = (Object a) -> b
-	
-class FunctionClass f where
-	(.) :: (Object a) -> (f a b) -> (Object b)
-	
-instance FunctionClass (->) where
-	(.) = flip fmap
-
-instance FunctionClass ObjectFunction where
-	(.) object f = Null
+instance Num a => Num (Object a) where
+	(+) (Instance a) (Instance b) = Instance $ a + b
+	(-) (Instance a) (Instance b) = Instance $ a - b
+	(*) (Instance a) (Instance b) = Instance $ a * b
+	negate (Instance a) = Instance $ negate a
+	abs (Instance a) = Instance $ abs a
+	signum (Instance a) = Instance $ signum a
+	fromInteger i = Instance $ fromInteger i 
