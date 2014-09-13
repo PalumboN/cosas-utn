@@ -1,3 +1,5 @@
+%Se corren con el comando run_tests.
+
 :- use_module(sturbacks).
 
 pedido(vero,frappuccinoFrutilla).
@@ -25,9 +27,8 @@ tieneAlcohol(tiaMaria).
 tieneAlcohol(vodka).
 tieneAlcohol(ron).
 
-:- begin_tests(lists).
+:- begin_tests(ingrediente).
 
-% 1)
 test(ingredienteEsInversibleRespectoALosIngredientes, 
 	[set(Ingrediente == [base(vodka,100),base(ron,90),jarabe(frutilla)])]) :-
         ingrediente(explosiva, Ingrediente).
@@ -36,7 +37,10 @@ test(ingredienteEsInversibleRespectoALaBebida,
 	[true(Bebida == explosiva)], nondet) :-
         ingrediente(Bebida, base(vodka,100)).
 		
-% 2)
+:- end_tests(ingrediente).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- begin_tests(caloriasTotales).
+
 test(caloriasDelCafeEsElDobleQueSuCantidad) :-
         sturbacks:calorias(base(cafe, 10), 20).
 
@@ -58,7 +62,9 @@ test(caloriasTotalesEsInversibleRespectoALaBebida,
 	[true(Bebida == extrema), nondet]) :-
         caloriasTotales(Bebida, 2010).
 
-% 3)
+:- end_tests(caloriasTotales).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- begin_tests(bebidaLight).
 		
 test(bebidaNoEsLightCuandoSusCaloriasTotalesSonMayoresQue80,
 	[fail]) :-
@@ -72,7 +78,10 @@ test(bebidaLightEsInversible,
 	[set(Bebida == [light]), nondet]) :-
         bebidaLight(Bebida).
 
-% 4)
+:- end_tests(bebidaLight).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- begin_tests(esAlcoholica).
+
 test(bebidaEsAlcoholicaCuandoPoseeAlgunComponenteAlcoholico) :-
         assertion(esAlcoholica(irishCream)),
 		assertion(esAlcoholica(explosiva)).
@@ -81,7 +90,10 @@ test(esAlcoholicaEsInversible,
 	[set(Bebida == [irishCream, explosiva, extrema])]) :-
         esAlcoholica(Bebida).
 		
-% 5)
+:- end_tests(esAlcoholica).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- begin_tests(tieneProblemitas).
+
 test(clienteQuePidioUnaBebidaConMasDe10IngredientesTieneProblemitas,
 	[nondet]) :-
 		tieneProblemitas(alf).
@@ -98,7 +110,10 @@ test(tieneProblemitasEsInversible,
 	[set(Cliente == [alf, gus])]) :-
 		tieneProblemitas(Cliente).
 
-% 6)
+:- end_tests(tieneProblemitas).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- begin_tests(redDeGustos).
+
 test(dosClientesCompartenLaRedDeGustosSiPidieronLaMismaBebida,
 	[nondet]) :-
 		redDeGustos(franco, alf).
@@ -116,4 +131,4 @@ test(redDeGustosEsInversible,
 	[set(Cliente == [alf, gus])]) :-
 		redDeGustos(franco, Cliente).
 		
-:- end_tests(lists).
+:- end_tests(redDeGustos).
