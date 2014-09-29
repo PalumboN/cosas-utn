@@ -1,3 +1,9 @@
+(*) Cuando desarrollábamos en Smalltalk, cómo verificábamos que nuestros sistema hacía lo que se pedía? 
+Exacto! Con los tests! Y a qué llamamos "test"?
+Así es! código que verifica que nuestro código funciona BIEN.
+
+
+
 * Testing
 	- ¿Por qué testeamos?
 		- Somos humanos y nos equivocamos.
@@ -14,7 +20,7 @@
 		- Importancia de la casuística:
 			- Armar un buen conjunto de datos.
 				- Completitud de los tests.
-			- Testear lo que debe y lo que no debe hacer.
+			- Testear lo que debe y no debe hacer.
 			- No testear dos veces la misma cosa.
 				- Evitar solapamientos.
 	- Tipos de Tests:
