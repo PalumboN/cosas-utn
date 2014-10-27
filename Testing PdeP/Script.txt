@@ -1,9 +1,3 @@
-(*) Cuando desarrollábamos en Smalltalk, cómo verificábamos que nuestros sistema hacía lo que se pedía? 
-Exacto! Con los tests! Y a qué llamamos "test"?
-Así es! código que verifica que nuestro código funciona BIEN.
-
-
-
 * Testing
 	- ¿Por qué testeamos?
 		- Somos humanos y nos equivocamos.
@@ -26,7 +20,7 @@ Así es! código que verifica que nuestro código funciona BIEN.
 	- Tipos de Tests:
 		- Granularidad vs Automatización.
 			- Integración vs Unitarias.
-			- Automatizadas vs Manualse
+			- Automatizadas vs Manuales
 		- Pruebas de regresión.
 		- Teorías vs pruebas tradicionales. [Esto está bueno para Haskell]
 	- Anatonía de los tests:
@@ -47,3 +41,20 @@ Así es! código que verifica que nuestro código funciona BIEN.
 		- Beneficios.
 		- Limitaciones.
 		
+		
+		
+Cuando desarrollábamos en Smalltalk, cómo verificábamos que nuestros sistema hacía lo que se pedía? 
+Exacto! Con los tests! Y a qué llamamos "test"?
+Al código que verifica que nuestro código funciona BIEN. Y si recuerdan, tenía 3 partes fundamentales:
+
+*** Anatomía de los tests ***
+
+Y cuando lo hacíamos en Haskell o Prolog??
+También testeábamos, pero en forma MANUAL, no autmática. 
+Y cómo lo hacían: iban probando a medida que avanzaban con el desarrollo, o una vez que está todo terminado? (respuesta correcta: ambas). O sea, íbamos testeando a medida que avanzabamos y una vez que teníamos todo el caso de uso terminado probábamos que todo andara bien. O sea que hacíamos tests unitarios y después más de integración.
+
+*** Tipos de tests ***
+
+Y qué prefieren, tests manuales o automáticos? (Espero que digan automáticos, si no es así convencerlos :P) Bueno, hagámoslos.
+
+*** Empezar con los tests de Prolog. Explicar PlUnit ***
