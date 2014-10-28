@@ -54,6 +54,9 @@ test(caloriasDelJarabeEs10) :-
 test(caloriasDeLecheEsCantLechePorCantGrasa) :-
         sturbacks:calorias(leche(5, 10), 50).
 
+test(caloriasTotalesEsLaSumaDeLasCaloriasDeLosIngredientes) :-
+        caloriasTotales(extrema, 2010).
+		
 test(caloriasTotalesEsInversibleRespectoALasCalorias, 
 	[true(Calorias == 2010)]) :-
         caloriasTotales(extrema, Calorias).

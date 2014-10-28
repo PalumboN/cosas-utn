@@ -1,60 +1,84 @@
-* Testing
-	- ¿Por qué testeamos?
-		- Somos humanos y nos equivocamos.
-		- Queremos asegurar la calidad de nuestro SW.
-		- Robustez, consistencia, mantenibilidad.
-		- Valor de testear > valor de NO testear.
-		- Cobertura de tests.
-	- ¿Qué testear?
-		- Testear funcionalidades (no accesors).
-		- Evitar llegar al debugging:
-			- Es una paja.
-			- Toma mucho tiempo (repetido por cada error).
-			- Fácilmente se pierde el foco.
-		- Importancia de la casuística:
-			- Armar un buen conjunto de datos.
-				- Completitud de los tests.
-			- Testear lo que debe y no debe hacer.
-			- No testear dos veces la misma cosa.
-				- Evitar solapamientos.
-	- Tipos de Tests:
-		- Granularidad vs Automatización.
-			- Integración vs Unitarias.
-			- Automatizadas vs Manuales
-		- Pruebas de regresión.
-		- Teorías vs pruebas tradicionales. [Esto está bueno para Haskell]
-	- Anatonía de los tests:
-		- Precondiciones: construir el escenario.
-			- Simple y específico.
-			- Mínima redundancia.
-		- Operaciones: hacer lo que se quiere testear.
-			- Simple y específico.
-			- No romper encapsulamiento.
-		- Postcondiciones: resultado esperado.
-			- Simple y específico.
-			- Abstracciones.
-	- Forma parte de la estructura del Sistema:
-		- Declaratividad.
-		- Expresividad.
-		- Evitar lógica repetida.		
-	- TDD:
-		- Beneficios.
-		- Limitaciones.
-		
-		
-		
+CLASE DE TESTING (para PdeP)
+
 Cuando desarrollábamos en Smalltalk, cómo verificábamos que nuestros sistema hacía lo que se pedía? 
 Exacto! Con los tests! Y a qué llamamos "test"?
-Al código que verifica que nuestro código funciona BIEN. Y si recuerdan, tenía 3 partes fundamentales:
+A toda porción de código que verifica que nuestro código de negocio funciona, BIEN. Y si recuerdan, tenía 3 partes fundamentales:
 
-*** Anatomía de los tests ***
+*** Anatonía de los tests:
+	- Precondiciones: construir el escenario.
+		- Simple y específico.
+		- Mínima redundancia.
+	- Operaciones: hacer lo que se quiere testear.
+		- Simple y específico.
+		- No romper encapsulamiento.
+	- Postcondiciones: resultado esperado.
+		- Simple y específico.
+		- Abstracciones.
 
-Y cuando lo hacíamos en Haskell o Prolog??
-También testeábamos, pero en forma MANUAL, no autmática. 
-Y cómo lo hacían: iban probando a medida que avanzaban con el desarrollo, o una vez que está todo terminado? (respuesta correcta: ambas). O sea, íbamos testeando a medida que avanzabamos y una vez que teníamos todo el caso de uso terminado probábamos que todo andara bien. O sea que hacíamos tests unitarios y después más de integración.
+Y cuando lo hacíamos en Haskell o Prolog???
+También testeábamos, pero en forma MANUAL, no automática. 
+Y cómo lo hacían: iban probando a medida que avanzaban con el desarrollo, o una vez que está todo terminado? (respuesta correcta: ambas). O sea, íbamos testeando a medida que avanzabamos y una vez que teníamos todo el caso de uso terminado probábamos que todo andara bien. O sea que hacíamos tests unitarios y después más de integración.(Aclarar que no existe un absoluto, algunos tests son más de integración y otros más unitarios).
 
-*** Tipos de tests ***
+*** Tipos de Tests (1):
+	- Granularidad vs Automatización.
+		- Integración vs Unitarias. 
+		- Automatizadas vs Manuales.
 
+Ok, centrémosnos en los unitarios que fueron los que estuvimos trabajando más. 
 Y qué prefieren, tests manuales o automáticos? (Espero que digan automáticos, si no es así convencerlos :P) Bueno, hagámoslos.
 
-*** Empezar con los tests de Prolog. Explicar PlUnit ***
+###### Tests de Prolog ######
+- Recordar el enunciado (Sturbacks).
+
+*** Pensar: ¿Qué testear?
+	- Testear funcionalidades (no accesors).
+	- Importancia de la casuística:
+		- Armar un buen conjunto de datos.
+			- Completitud de los tests.
+		- Testear lo que debe y no debe hacer.
+
+- Explicar PlUnit.
+- Encontrar la anatomía de test.
+- Mostrar la modulación/estructuras => porque forma parte de la estructura del Sistema y se siguen manteniendo las buenas prácticas.
+
+(+) Hacer el último punto: agregar un nuevo tipo de ingrediente. Cómo sabemos que no rompimos nada de lo que estaba hecho? Gracias a los tests!
+*** Tipos de Tests (2):
+	- Pruebas de regresión.
+(Estaría bueno que se rompa algún(os) test(s) porque cambiamos el escenario <<<<<<<<<< pensar cómo encarar eso)
+#############################
+
+Ok, ahora pasemos a Haskell, pero ya que estamos más cancheros vayamos al revés. Sí, primero hagamos los tests:
+*** TDD:
+	- Beneficios.
+	- Limitaciones.
+
+###### Tests de Haskell ######
+- Recordar el enunciado (Hierbas y Ratas).
+- Explicar Hspec.
+- Encontrar la anatomía de test.
+
+*** Recordar: Forma parte de la estructura del Sistema:
+	- Declaratividad.
+	- Expresividad.
+	- Evitar lógica repetida. (Tener constructores de ratones)
+	- No testear dos veces la misma cosa.
+		- Evitar solapamientos.
+		
+- Crear los tests (punto 1) -> ver que rompen -> implementarlos -> ver que pasan.
+		
+*** Tipos de Tests (3):
+	- Teorías vs pruebas tradicionales. 
+- Mostrar el property de Hspec (PondsAntiAge).
+##############################
+
+Sacar conclusiones:
+*** ¿Por qué testeamos?
+	- Somos humanos y nos equivocamos.
+	- Queremos asegurar la calidad de nuestro SW.
+	- Robustez, consistencia, mantenibilidad.
+	- Valor de testear > valor de NO testear!
+	- Cobertura de tests.
+	- Evitar llegar al debugging:
+		- Es una paja.
+		- Toma mucho tiempo (repetido por cada error).
+		- Fácilmente se pierde el foco.
