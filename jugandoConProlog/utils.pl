@@ -27,11 +27,22 @@
 bigger(X, Y) :- X > Y.
 smaller(X, Y) :- X < Y.
 	
-sum(X, Y, R) :- R is X + Y.	
-subs(X, Y, R) :- R is X - Y.
-	
-mod(X, Y) :- Y is abs(X).
-	
+sum(X, Y, R) :- plus(X, Y, R).
+subs(X, Y, R) :- 
+	NX is -X, 
+	plus(NX, Y, R).
+
+mod(X, Y) :- 
+	catch(Y is abs(X),
+	error(instantiation_error,_), 
+	false).
+
+mod(X, X) :- X >= 0.
+mod(X, Y) :- 
+	catch(X is -Y,
+	error(instantiation_error,_), 
+	false).
+
 filter(Cond, Lista, Filtrados) :-
 	findall(Elem,
 	(member(Elem, Lista), call(Cond, Elem)),
