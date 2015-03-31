@@ -37,7 +37,10 @@ mod(X, Y) :-
 	error(instantiation_error,_), 
 	false).
 
-mod(X, X) :- X >= 0.
+mod(X, X) :- 
+	catch(X >= 0,
+	error(instantiation_error,_), 
+	false).
 mod(X, Y) :- 
 	catch(X is -Y,
 	error(instantiation_error,_), 
