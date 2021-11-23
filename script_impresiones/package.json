@@ -1,0 +1,12 @@
+{
+  "name": "script_impresiones",
+  "version": "1.0.0",
+  "description": "Script para acomodar todas las entregas en una sola carpeta",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
